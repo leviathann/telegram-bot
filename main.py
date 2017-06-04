@@ -1,7 +1,7 @@
 from telegram.ext import Updater
 from telegram.ext import CommandHandler,MessageHandler,Filters,ConversationHandler
 import logging
-
+import os
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 INPUT, STORE, OUT = range(3)
@@ -63,12 +63,12 @@ def unknown(bot_instance, update):
 
 
 def main():
-    # Create the Updater and pass it your bot's token.
-    updater = Updater("387093650:AAGb4uZjtt71N4LVPn_flI8JKTOWFy_ZW10")
-
+    
+    TOKEN = "387093650:AAGb4uZjtt71N4LVPn_flI8JKTOWFy_ZW10"
+    PORT = int(os.environ.get('PORT', '5000'))
+    updater = Updater(TOKEN)
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
-
     # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
@@ -80,18 +80,11 @@ def main():
         },
         fallbacks=[CommandHandler('done', done)]
     )
-
+    
     dp.add_handler(conv_handler)
-
-    # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
+    updater.bot.set_webhook("https://test-levi-bot.herokuapp.com/" + TOKEN)
     updater.idle()
-
 
 if __name__ == '__main__':
     main()
-
